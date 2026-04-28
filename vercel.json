@@ -2,14 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js",
+      "src": "api/qualities.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1.js"
+      "src": "/api/qualities(.*)",
+      "dest": "/api/qualities.js"
+    },
+    {
+      "src": "/api/health",
+      "dest": "/api/qualities.js"
     },
     {
       "src": "/(.*)",
