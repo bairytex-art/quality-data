@@ -875,6 +875,10 @@ async function init() {
     userEmail: document.getElementById("userEmail"),
     signUpBtn: document.getElementById("signUpBtn"),
     authMessage: document.getElementById("authMessage"),
+    authSuccessModal: document.getElementById("authSuccessModal"),
+    authSuccessTitle: document.getElementById("authSuccessTitle"),
+    authSuccessMessage: document.getElementById("authSuccessMessage"),
+    closeAuthSuccessBtn: document.getElementById("closeAuthSuccessBtn"),
   };
 
   const createClient = window.supabase?.createClient;
@@ -907,6 +911,10 @@ async function init() {
   safeAddListener(els.loginForm, "submit", handleLogin);
   safeAddListener(els.signUpBtn, "click", handleSignUp);
   safeAddListener(els.signOutBtn, "click", handleSignOut);
+  safeAddListener(els.closeAuthSuccessBtn, "click", () => {
+    els.authSuccessModal.classList.remove("active");
+  });
+
   safeAddListener(els.form, "submit", handleFormSubmit);
   safeAddListener(els.searchInput, "input", handleSearch);
   
@@ -980,21 +988,35 @@ async function init() {
   // Listen for auth changes
   supabaseClient.auth.onAuthStateChange((_event, session) => {
     updateAuthState(session);
+    if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+      // User just confirmed email
+      showAuthSuccess("Email Confirmed!", "Your email has been successfully confirmed. You are now signed in!");
+      // Clean up the URL
+      window.history.replaceState(null, null, window.location.pathname);
+    }
   });
 
   await renderSavedTable();
 }
 
+function showAuthSuccess(title, message) {
+  if (els.authSuccessModal) {
+    els.authSuccessTitle.textContent = title;
+    els.authSuccessMessage.textContent = message;
+    els.authSuccessModal.classList.add("active");
+  }
+}
+
 function updateAuthState(session) {
   if (session) {
-    els.loginModal.classList.remove("active");
-    els.signOutBtn.style.display = "block";
-    els.userEmail.textContent = session.user.email;
+    if (els.loginModal) els.loginModal.classList.remove("active");
+    if (els.signOutBtn) els.signOutBtn.style.display = "block";
+    if (els.userEmail) els.userEmail.textContent = session.user.email;
     document.body.style.overflow = "auto";
   } else {
-    els.loginModal.classList.add("active");
-    els.signOutBtn.style.display = "none";
-    els.userEmail.textContent = "";
+    if (els.loginModal) els.loginModal.classList.add("active");
+    if (els.signOutBtn) els.signOutBtn.style.display = "none";
+    if (els.userEmail) els.userEmail.textContent = "";
     document.body.style.overflow = "hidden";
   }
 }
@@ -1035,9 +1057,8 @@ async function handleLogin(e) {
     showToast(msg, "error");
     
     if (els.authMessage && msg.toLowerCase().includes("confirm")) {
-      els.authMessage.textContent = "Please confirm your email before signing in.";
-      els.authMessage.style.display = "block";
-    }
+       showToast("Please confirm your email before signing in.", "error");
+     }
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Sign In";
@@ -1073,10 +1094,7 @@ async function handleSignUp() {
     if (data.user && data.session) {
       showToast("Account created and signed in!");
     } else {
-      if (els.authMessage) {
-        els.authMessage.textContent = "Success! Please check your email for a verification link.";
-        els.authMessage.style.display = "block";
-      }
+      showAuthSuccess("Check Your Email", "We've sent a confirmation link to " + email + ". Please click the link to activate your account.");
       showToast("Check your email for verification", "success");
     }
   } catch (error) {
