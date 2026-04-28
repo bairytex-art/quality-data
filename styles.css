@@ -1,22 +1,22 @@
 :root {
-  --bg: #fdfcfb;
+  --bg: #fafaff;
   --panel: #ffffff;
-  --panel-soft: #faf8f5;
-  --line: #eeeae4;
-  --line-strong: #e2ded7;
-  --text: #1a1612;
-  --muted: #827a6f;
-  --accent: #8b5e1a;
-  --accent-hover: #754e15;
-  --accent-soft: #f9f4ec;
-  --danger: #b33a1b;
-  --danger-hover: #9c2e15;
-  --success: #2d7a54;
-  --success-hover: #266345;
-  --info: #2a6f97;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 14px rgba(74, 52, 23, 0.08);
-  --shadow-lg: 0 16px 48px rgba(74, 52, 23, 0.12);
+  --panel-soft: #f7f5ff;
+  --line: #e8e4f5;
+  --line-strong: #d8d2ed;
+  --text: #1a162e;
+  --muted: #6e6a86;
+  --accent: #9333ea;
+  --accent-hover: #7e22ce;
+  --accent-soft: #f3e8ff;
+  --danger: #e11d48;
+  --danger-hover: #be123c;
+  --success: #059669;
+  --success-hover: #047857;
+  --info: #2563eb;
+  --shadow-sm: 0 1px 2px rgba(147, 51, 234, 0.04);
+  --shadow-md: 0 4px 14px rgba(147, 51, 234, 0.08);
+  --shadow-lg: 0 16px 48px rgba(147, 51, 234, 0.12);
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
@@ -34,9 +34,9 @@ body {
   min-height: 100vh;
   background-color: var(--bg);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(139, 94, 26, 0.04) 0, transparent 40%),
-    radial-gradient(at 100% 100%, rgba(139, 94, 26, 0.04) 0, transparent 40%),
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83L60 5.373V6.2l-.83.83-5.373-5.373-.83-.83H54.627zM.83 0l.83.83L6.2 5.373V6.2L5.373 7.03 0 1.657V.83L.83 0zM0 54.627l.83.83L5.373 60H6.2l-.83-.83-5.373-5.373-.83-.83v-.827zM54.627 60l.83-.83L60 54.627V53.8l-.83-.83-5.373 5.373-.83.83h.83z' fill='%238b5e1a' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+    radial-gradient(at 0% 0%, rgba(147, 51, 234, 0.04) 0, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.04) 0, transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83L60 5.373V6.2l-.83.83-5.373-5.373-.83-.83H54.627zM.83 0l.83.83L6.2 5.373V6.2L5.373 7.03 0 1.657V.83L.83 0zM0 54.627l.83.83L5.373 60H6.2l-.83-.83-5.373-5.373-.83-.83v-.827zM54.627 60l.83-.83L60 54.627V53.8l-.83-.83-5.373 5.373-.83.83h.83z' fill='%239333ea' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
   color: var(--text);
   font-family: "DM Sans", system-ui, -apple-system, sans-serif;
   line-height: 1.6;
