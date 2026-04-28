@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -156,12 +157,12 @@ app.use(express.static('.'));
 
 // Root route - serve the main HTML file
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Catch-all handler for client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
