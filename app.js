@@ -1,7 +1,7 @@
 // Supabase Configuration
 // Replace with your actual Supabase URL and Key in your environment
 // For local development, these will be injected or replaced
-const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://lwvrpuyzbypjydghwlvw.supabase.co';
+const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://lwvrpuyzbypjydghwvlvw.supabase.co';
 const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3dnJwdXl6YnlwanlkZ2h3dmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDE2NjIsImV4cCI6MjA5Mjk3NzY2Mn0.gKptKtqEmiJ3ITz2B5YrqxU4Ppi3VytCAcJ_D0myTbA';
 
 const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
