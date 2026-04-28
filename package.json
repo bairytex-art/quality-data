@@ -1,7 +1,7 @@
 {
   "name": "quality-data-manager",
   "version": "1.0.0",
-  "description": "Textile Quality Data Manager with backend",
+  "description": "Textile Quality Data Manager with Supabase backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,17 +10,19 @@
     "test": "echo 'No tests yet'"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
-    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.105.1",
     "dotenv": "^16.3.1",
-    "helmet": "^7.0.0",
-    "express-rate-limit": "^6.10.0"
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["textile", "quality", "data", "manager"],
+  "keywords": [
+    "textile",
+    "quality",
+    "data",
+    "manager"
+  ],
   "author": "BAIRY TEXTILE INDUSTRIES",
   "license": "ISC"
 }

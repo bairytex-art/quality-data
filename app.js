@@ -1,4 +1,10 @@
-const API_BASE = window.location.origin + '/api';
+// Supabase Configuration
+// Replace with your actual Supabase URL and Key in your environment
+// For local development, these will be injected or replaced
+const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://lwvrpuyzbypjydghwlvw.supabase.co';
+const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3dnJwdXl6YnlwanlkZ2h3dmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDE2NjIsImV4cCI6MjA5Mjk3NzY2Mn0.gKptKtqEmiJ3ITz2B5YrqxU4Ppi3VytCAcJ_D0myTbA';
+
+const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 const els = {
   form: document.getElementById("qualityForm"),
@@ -55,53 +61,94 @@ let currentFilter = "recent";
 let currentPage = 1;
 let totalPages = 1;
 
-// API Functions
+// Supabase Functions
 async function loadRecords(search = '', filter = currentFilter, page = currentPage) {
+  if (!supabaseClient) {
+    console.error('Supabase client not initialized');
+    return [];
+  }
+
   try {
-    const params = new URLSearchParams({ search, filter, page });
-    const response = await fetch(`${API_BASE}/qualities?${params}`);
-    const data = await response.json();
-    records = data.qualities || [];
-    totalPages = data.totalPages || 1;
-    currentPage = data.currentPage || 1;
+    let query = supabaseClient
+      .from('qualities')
+      .select('*', { count: 'exact' });
+
+    // Search filter
+    if (search) {
+      query = query.or(`qualityName.ilike.%${search}%,motherName.ilike.%${search}%,loomNumber.ilike.%${search}%`);
+    }
+
+    // Time filter & Sorting
+    if (filter === 'recent') {
+      query = query.order('startDate', { ascending: false });
+    } else if (filter === 'month') {
+      const firstDay = new Date();
+      firstDay.setDate(1);
+      query = query.gte('startDate', firstDay.toISOString().split('T')[0]).order('startDate', { ascending: false });
+    } else if (filter === 'year') {
+      const firstDay = new Date();
+      firstDay.setMonth(0, 1);
+      query = query.gte('startDate', firstDay.toISOString().split('T')[0]).order('startDate', { ascending: false });
+    }
+
+    // Pagination
+    const pageSize = 10;
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+
+    const { data, count, error } = await query;
+
+    if (error) throw error;
+
+    records = data || [];
+    totalPages = Math.ceil((count || 0) / pageSize);
+    currentPage = page;
     return records;
   } catch (error) {
     console.error('Error loading records:', error);
-    showToast('Failed to load records', 'error');
+    showToast('Failed to load records from Supabase', 'error');
     return [];
   }
 }
 
 async function saveRecord(record) {
+  if (!supabaseClient) {
+    showToast('Supabase not configured', 'error');
+    throw new Error('Supabase not configured');
+  }
+
   try {
-    const method = record._id ? 'PUT' : 'POST';
-    const url = record._id ? `${API_BASE}/qualities/${record._id}` : `${API_BASE}/qualities`;
+    const isUpdate = !!record.id;
+    const { data, error } = await supabaseClient
+      .from('qualities')
+      [isUpdate ? 'update' : 'insert'](record)
+      .select()
+      .single();
 
-    const response = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(record)
-    });
-
-    if (!response.ok) throw new Error('Failed to save record');
-
-    const savedRecord = await response.json();
-    return savedRecord;
+    if (error) throw error;
+    return data;
   } catch (error) {
     console.error('Error saving record:', error);
-    showToast('Failed to save record', 'error');
+    showToast('Failed to save record to Supabase', 'error');
     throw error;
   }
 }
 
 async function deleteRecord(id) {
+  if (!supabaseClient) return;
+
   try {
-    const response = await fetch(`${API_BASE}/qualities/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('Failed to delete record');
-    return await response.json();
+    const { error } = await supabaseClient
+      .from('qualities')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    showToast('Record deleted successfully');
   } catch (error) {
     console.error('Error deleting record:', error);
-    showToast('Failed to delete record', 'error');
+    showToast('Failed to delete record from Supabase', 'error');
     throw error;
   }
 }
@@ -359,7 +406,7 @@ function resetForm() {
 }
 
 function fillForm(record) {
-  els.qualityId.value = record._id || "";
+  els.qualityId.value = record.id || "";
 
   fieldIds.forEach((id) => {
     fields[id].value = record[id] ?? "";
@@ -374,7 +421,7 @@ function fillForm(record) {
 
 function getCurrentFormRecord() {
   return {
-    _id: els.qualityId.value || undefined,
+    id: els.qualityId.value || undefined,
     loomNumber: fields.loomNumber.value.trim(),
     startDate: fields.startDate.value,
     qualityName: fields.qualityName.value.trim(),
@@ -486,7 +533,7 @@ async function renderSavedTable() {
 
     tr.querySelector(".delete-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      deleteRecord(record._id).then(() => {
+      deleteRecord(record.id).then(() => {
         renderSavedTable();
         showToast(`${record.qualityName} deleted`);
       });
@@ -728,12 +775,6 @@ els.form.addEventListener("submit", async (event) => {
   }
 
   try {
-    // Convert id to _id for MongoDB
-    if (payload.id) {
-      payload._id = payload.id;
-      delete payload.id;
-    }
-
     await saveRecord(payload);
     await renderSavedTable();
     closeEntryModal();
@@ -773,14 +814,19 @@ els.editCurrentBtn.addEventListener("click", () => {
   }
 });
 
-els.deleteCurrentBtn.addEventListener("click", () => {
-  if (previewRecord) {
-    records = records.filter((item) => item.id !== previewRecord.id);
-    saveRecords();
-    closePreviewModal();
-    renderSavedTable();
-    showToast(`${previewRecord.qualityName} deleted`);
-    previewRecord = null;
+els.deleteCurrentBtn.addEventListener("click", async () => {
+  if (previewRecord && previewRecord.id) {
+    if (confirm(`Are you sure you want to delete ${previewRecord.qualityName}?`)) {
+      try {
+        await deleteRecord(previewRecord.id);
+        closePreviewModal();
+        await renderSavedTable();
+        showToast(`${previewRecord.qualityName} deleted`);
+        previewRecord = null;
+      } catch (error) {
+        showToast("Failed to delete record", "error");
+      }
+    }
   }
 });
 
