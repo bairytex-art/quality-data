@@ -159,6 +159,11 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html');
 });
 
+// Catch-all handler for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
+
 // Start server
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
