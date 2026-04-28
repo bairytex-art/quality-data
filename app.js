@@ -551,12 +551,16 @@ async function renderSavedTable() {
       downloadRecordAsJpg(record);
     });
 
-    tr.querySelector(".delete-btn").addEventListener("click", (e) => {
+    tr.querySelector(".delete-btn").addEventListener("click", async (e) => {
       e.stopPropagation();
-      deleteRecord(record.id).then(() => {
-        renderSavedTable();
-        showToast(`${record.qualityName} deleted`);
-      });
+      if (confirm(`Are you sure you want to delete ${record.qualityName}?`)) {
+        try {
+          await deleteRecord(record.id);
+          await renderSavedTable();
+        } catch (error) {
+          console.error('Delete failed:', error);
+        }
+      }
     });
 
     els.qualityTableBody.appendChild(tr);
