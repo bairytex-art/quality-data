@@ -894,48 +894,58 @@ async function init() {
   supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
   // Attach Event Listeners
-  if (els.loginForm) els.loginForm.addEventListener("submit", handleLogin);
-  if (els.signOutBtn) els.signOutBtn.addEventListener("click", handleSignOut);
-  if (els.form) els.form.addEventListener("submit", handleFormSubmit);
-  if (els.searchInput) els.searchInput.addEventListener("input", handleSearch);
-  if (els.clearFormBtn) els.clearFormBtn.addEventListener("click", () => openEntryModal());
-  if (els.closeEntryModal) els.closeEntryModal.addEventListener("click", closeEntryModal);
-  if (els.cancelEntryBtn) els.cancelEntryBtn.addEventListener("click", closeEntryModal);
-  if (els.closePreviewModal) els.closePreviewModal.addEventListener("click", closePreviewModal);
-  if (els.editCurrentBtn) els.editCurrentBtn.addEventListener("click", () => {
+  const safeAddListener = (el, event, handler) => {
+    if (el) {
+      el.addEventListener(event, handler);
+    } else {
+      console.warn(`Could not attach event listener: Element for event "${event}" not found.`);
+    }
+  };
+
+  safeAddListener(els.loginForm, "submit", handleLogin);
+  safeAddListener(els.signOutBtn, "click", handleSignOut);
+  safeAddListener(els.form, "submit", handleFormSubmit);
+  safeAddListener(els.searchInput, "input", handleSearch);
+  
+  safeAddListener(els.clearFormBtn, "click", () => openEntryModal());
+  safeAddListener(els.closeEntryModal, "click", closeEntryModal);
+  safeAddListener(els.cancelEntryBtn, "click", closeEntryModal);
+  safeAddListener(els.closePreviewModal, "click", closePreviewModal);
+  
+  safeAddListener(els.editCurrentBtn, "click", () => {
     if (previewRecord) {
       closePreviewModal();
       openEntryModal(previewRecord);
     }
   });
-  if (els.printCurrentBtn) els.printCurrentBtn.addEventListener("click", () => {
+
+  safeAddListener(els.printCurrentBtn, "click", () => {
     if (previewRecord) printRecord(previewRecord);
   });
-  if (els.downloadCurrentBtn) els.downloadCurrentBtn.addEventListener("click", () => {
+
+  safeAddListener(els.downloadCurrentBtn, "click", () => {
     if (previewRecord) downloadRecordAsJpg(previewRecord);
   });
   
-  if (els.deleteCurrentBtn) {
-    els.deleteCurrentBtn.addEventListener("click", () => {
-      if (previewRecord && previewRecord.id) {
-        openConfirmModal({
-          title: "Delete Quality",
-          message: `Are you sure you want to delete "${previewRecord.qualityName}"? This action cannot be undone.`,
-          onConfirm: async () => {
-            try {
-              await deleteRecord(previewRecord.id);
-              closePreviewModal();
-              await renderSavedTable();
-              showToast(`${previewRecord.qualityName} deleted`);
-              previewRecord = null;
-            } catch (error) {
-              showToast("Failed to delete record", "error");
-            }
+  safeAddListener(els.deleteCurrentBtn, "click", () => {
+    if (previewRecord && previewRecord.id) {
+      openConfirmModal({
+        title: "Delete Quality",
+        message: `Are you sure you want to delete "${previewRecord.qualityName}"? This action cannot be undone.`,
+        onConfirm: async () => {
+          try {
+            await deleteRecord(previewRecord.id);
+            closePreviewModal();
+            await renderSavedTable();
+            showToast(`${previewRecord.qualityName} deleted`);
+            previewRecord = null;
+          } catch (error) {
+            showToast("Failed to delete record", "error");
           }
-        });
-      }
-    });
-  }
+        }
+      });
+    }
+  });
 
   if (els.filterBtns) {
     els.filterBtns.forEach((btn) => {
@@ -948,14 +958,17 @@ async function init() {
     });
   }
 
-  if (els.entryModal) els.entryModal.querySelector(".modal-backdrop").addEventListener("click", closeEntryModal);
-  if (els.previewModal) els.previewModal.querySelector(".modal-backdrop").addEventListener("click", closePreviewModal);
+  const entryBackdrop = els.entryModal?.querySelector(".modal-backdrop");
+  if (entryBackdrop) entryBackdrop.addEventListener("click", closeEntryModal);
 
-  if (els.addWarpRowBtn) els.addWarpRowBtn.addEventListener("click", () => addMixRow(els.warpRows));
-  if (els.addWeftRowBtn) els.addWeftRowBtn.addEventListener("click", () => addMixRow(els.weftRows));
+  const previewBackdrop = els.previewModal?.querySelector(".modal-backdrop");
+  if (previewBackdrop) previewBackdrop.addEventListener("click", closePreviewModal);
 
-  clearMixRows(els.warpRows);
-  clearMixRows(els.weftRows);
+  safeAddListener(els.addWarpRowBtn, "click", () => addMixRow(els.warpRows));
+  safeAddListener(els.addWeftRowBtn, "click", () => addMixRow(els.weftRows));
+
+  if (els.warpRows) clearMixRows(els.warpRows);
+  if (els.weftRows) clearMixRows(els.weftRows);
 
   // Check current session
   const { data: { session } } = await supabaseClient.auth.getSession();
