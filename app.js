@@ -120,13 +120,33 @@ async function saveRecord(record) {
 
   try {
     const isUpdate = !!record.id;
-    const { data, error } = await supabaseClient
-      .from('qualities')
-      [isUpdate ? 'update' : 'insert'](record)
-      .select()
-      .single();
+    console.log('Saving record:', record); // Debug log
+    
+    let result;
+    if (isUpdate) {
+      result = await supabaseClient
+        .from('qualities')
+        .update(record)
+        .eq('id', record.id)
+        .select()
+        .single();
+    } else {
+      result = await supabaseClient
+        .from('qualities')
+        .insert(record)
+        .select()
+        .single();
+    }
 
-    if (error) throw error;
+    const { data, error } = result;
+
+    if (error) {
+      console.error('Supabase Error:', error);
+      showToast(`Database Error: ${error.message}`, 'error');
+      throw error;
+    }
+    
+    console.log('Save successful:', data);
     return data;
   } catch (error) {
     console.error('Error saving record:', error);
