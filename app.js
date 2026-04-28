@@ -31,6 +31,12 @@ const els = {
   deleteCurrentBtn: document.getElementById("deleteCurrentBtn"),
   previewTitle: document.getElementById("previewTitle"),
   filterBtns: document.querySelectorAll(".filter-btn"),
+  confirmModal: document.getElementById("confirmModal"),
+  confirmTitle: document.getElementById("confirmTitle"),
+  confirmMessage: document.getElementById("confirmMessage"),
+  confirmOkBtn: document.getElementById("confirmOkBtn"),
+  confirmCancelBtn: document.getElementById("confirmCancelBtn"),
+  closeConfirmModal: document.getElementById("closeConfirmModal"),
 };
 
 const fieldIds = [
@@ -200,6 +206,33 @@ function openPreviewModal(record) {
 
 function closePreviewModal() {
   els.previewModal.classList.remove("active");
+  document.body.style.overflow = "auto";
+}
+
+function openConfirmModal({ title, message, onConfirm }) {
+  els.confirmTitle.textContent = title || "Confirm Action";
+  els.confirmMessage.textContent = message || "Are you sure?";
+  els.confirmModal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  const handleConfirm = async () => {
+    await onConfirm();
+    closeConfirmModal();
+  };
+
+  const handleCancel = () => {
+    closeConfirmModal();
+  };
+
+  // One-time listeners
+  els.confirmOkBtn.onclick = handleConfirm;
+  els.confirmCancelBtn.onclick = handleCancel;
+  els.closeConfirmModal.onclick = handleCancel;
+  els.confirmModal.querySelector(".modal-backdrop").onclick = handleCancel;
+}
+
+function closeConfirmModal() {
+  els.confirmModal.classList.remove("active");
   document.body.style.overflow = "auto";
 }
 
@@ -551,16 +584,20 @@ async function renderSavedTable() {
       downloadRecordAsJpg(record);
     });
 
-    tr.querySelector(".delete-btn").addEventListener("click", async (e) => {
+    tr.querySelector(".delete-btn").addEventListener("click", (e) => {
       e.stopPropagation();
-      if (confirm(`Are you sure you want to delete ${record.qualityName}?`)) {
-        try {
-          await deleteRecord(record.id);
-          await renderSavedTable();
-        } catch (error) {
-          console.error('Delete failed:', error);
+      openConfirmModal({
+        title: "Delete Quality",
+        message: `Are you sure you want to delete "${record.qualityName}"? This action cannot be undone.`,
+        onConfirm: async () => {
+          try {
+            await deleteRecord(record.id);
+            await renderSavedTable();
+          } catch (error) {
+            console.error('Delete failed:', error);
+          }
         }
-      }
+      });
     });
 
     els.qualityTableBody.appendChild(tr);
@@ -838,19 +875,23 @@ els.editCurrentBtn.addEventListener("click", () => {
   }
 });
 
-els.deleteCurrentBtn.addEventListener("click", async () => {
+els.deleteCurrentBtn.addEventListener("click", () => {
   if (previewRecord && previewRecord.id) {
-    if (confirm(`Are you sure you want to delete ${previewRecord.qualityName}?`)) {
-      try {
-        await deleteRecord(previewRecord.id);
-        closePreviewModal();
-        await renderSavedTable();
-        showToast(`${previewRecord.qualityName} deleted`);
-        previewRecord = null;
-      } catch (error) {
-        showToast("Failed to delete record", "error");
+    openConfirmModal({
+      title: "Delete Quality",
+      message: `Are you sure you want to delete "${previewRecord.qualityName}"? This action cannot be undone.`,
+      onConfirm: async () => {
+        try {
+          await deleteRecord(previewRecord.id);
+          closePreviewModal();
+          await renderSavedTable();
+          showToast(`${previewRecord.qualityName} deleted`);
+          previewRecord = null;
+        } catch (error) {
+          showToast("Failed to delete record", "error");
+        }
       }
-    }
+    });
   }
 });
 

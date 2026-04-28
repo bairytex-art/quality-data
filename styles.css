@@ -467,6 +467,22 @@ h3 {
   max-width: 1000px;
 }
 
+.button-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.modal-content.modal-confirm {
+  max-width: 440px;
+}
+
+.modal-confirm .modal-body p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

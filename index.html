@@ -225,6 +225,24 @@
           <button class="button button-secondary" id="deleteCurrentBtn" type="button">Delete</button>
         </div>
 
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-confirm">
+        <div class="modal-header">
+          <h2 id="confirmTitle">Confirm Action</h2>
+          <button class="modal-close" id="closeConfirmModal" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <p id="confirmMessage">Are you sure you want to perform this action?</p>
+        </div>
+        <div class="modal-footer">
+          <button id="confirmCancelBtn" class="button button-secondary" type="button">No, Cancel</button>
+          <button id="confirmOkBtn" class="button button-danger" type="button">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+
     <div id="toast" class="toast" aria-live="polite"></div>
 
     <template id="mixRowTemplate">
