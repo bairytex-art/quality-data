@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quality Data Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="kicker">Textile Quality Data</p>
+          <h1>BAIRY TEXTILE INDUSTRIES</h1>
+          <p class="subcopy">Manage quality records with searchable database and export options.</p>
+        </div>
+        <div class="header-actions">
+          <button id="clearFormBtn" class="button" type="button">+ New Entry</button>
+        </div>
+      </header>
+
+      <section class="section-card" id="librarySection">
+        <div class="section-header">
+          <div>
+            <p class="section-label">Quality Database</p>
+            <h2>All Qualities Data</h2>
+          </div>
+        </div>
+
+        <div class="library-filters">
+          <button class="filter-btn active" data-filter="recent">Recently Added</button>
+          <button class="filter-btn" data-filter="month">Month-wise</button>
+          <button class="filter-btn" data-filter="year">Year-wise</button>
+          <input id="searchInput" class="search-input" type="search" placeholder="Search by quality, mother, loom, date..." />
+          <div class="record-meta">
+            <span id="qualityCount">0 records</span>
+          </div>
+        </div>
+
+        <div class="library-grid">
+          <div class="saved-table-wrap">
+            <table class="saved-table">
+              <thead>
+                <tr>
+                  <th>Quality</th>
+                  <th>Mother</th>
+                  <th>Loom</th>
+                  <th>Date</th>
+                  <th>Style</th>
+                  <th>Warp</th>
+                  <th>Weft</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="qualityTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Entry Modal -->
+    <div id="entryModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Quality Data Entry</h2>
+          <button class="modal-close" id="closeEntryModal" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <section class="section-card" id="entrySection">
+        <div class="section-header">
+          <div>
+            <p class="section-label">Form</p>
+            <h3>Fill in the quality details</h3>
+          </div>
+        </div>
+
+        <div class="entry-workspace">
+          <section class="entry-panel">
+            <form id="qualityForm">
+              <input id="qualityId" type="hidden" />
+
+              <div class="entry-sheet">
+                <table class="entry-table">
+                  <tbody>
+                    <tr>
+                      <th>LOOM</th>
+                      <td><input id="loomNumber" required /></td>
+                      <th>DATE</th>
+                      <td><input id="startDate" type="date" required /></td>
+                    </tr>
+                    <tr>
+                      <th>QUALITY NAME</th>
+                      <td><input id="qualityName" required /></td>
+                      <th>MOTHER NAME</th>
+                      <td><input id="motherName" required /></td>
+                    </tr>
+                    <tr>
+                      <th>DESIGN</th>
+                      <td><input id="design" /></td>
+                      <th>BEAM TYPE</th>
+                      <td>
+                        <select id="beamType">
+                          <option value="SIZING">SIZING</option>
+                          <option value="WARPING">WARPING</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>ENDS</th>
+                      <td><input id="ends" type="number" min="0" step="1" /></td>
+                      <th>REED</th>
+                      <td><input id="reedCount" /></td>
+                    </tr>
+                    <tr>
+                      <th>PICK ON LOOM</th>
+                      <td><input id="pickLoom" type="number" min="0" step="0.01" /></td>
+                      <th>PICK ON TABLE</th>
+                      <td><input id="pickTable" type="number" min="0" step="0.01" /></td>
+                    </tr>
+                    <tr>
+                      <th>WIDTH</th>
+                      <td><input id="width" type="number" min="0" step="0.01" /></td>
+                      <th>QUALITY WEIGHT</th>
+                      <td><input id="qualityWeight" type="number" min="0" step="0.01" /></td>
+                    </tr>
+                    <tr>
+                      <th>NAME YARN</th>
+                      <td><input id="nameYarn" /></td>
+                      <th>ZAMEEN YARN</th>
+                      <td><input id="zameenYarn" /></td>
+                    </tr>
+                    <tr>
+                      <th>OUTPUT STYLE</th>
+                      <td colspan="3">
+                        <select id="layoutMode">
+                          <option value="AUTO">AUTO</option>
+                          <option value="SINGLE">SINGLE</option>
+                          <option value="SAME">WARP&amp;WEFT</option>
+                          <option value="DIFFERENT">SEPARATE</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="mix-grid">
+                <section class="mix-card">
+                  <div class="mix-header">
+                    <div>
+                      <p class="section-label">Warp Rows</p>
+                      <p class="hint">Enter quantity and yarn text exactly the way you want it printed.</p>
+                    </div>
+                    <button id="addWarpRowBtn" class="button button-secondary" type="button">Add Warp Row</button>
+                  </div>
+                  <table class="mix-table">
+                    <thead>
+                      <tr>
+                        <th>Qty</th>
+                        <th>Warp yarn description</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="warpRows"></tbody>
+                  </table>
+                </section>
+
+                <section class="mix-card">
+                  <div class="mix-header">
+                    <div>
+                      <p class="section-label">Weft Rows</p>
+                      <p class="hint">Single ya multiple rows dono same flow se handle hongi.</p>
+                    </div>
+                    <button id="addWeftRowBtn" class="button button-secondary" type="button">Add Weft Row</button>
+                  </div>
+                  <table class="mix-table">
+                    <thead>
+                      <tr>
+                        <th>Qty</th>
+                        <th>Weft yarn description</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="weftRows"></tbody>
+                  </table>
+                </section>
+              </div>
+
+              <div class="form-actions">
+                <button class="button button-primary" type="submit">Save Quality</button>
+                <button class="button button-secondary" id="cancelEntryBtn" type="button">Cancel</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-preview">
+        <div class="modal-header">
+          <h2 id="previewTitle">Quality Preview</h2>
+          <button class="modal-close" id="closePreviewModal" type="button" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="sheetPreview" class="sheet-preview"></div>
+        </div>
+        <div class="modal-footer">
+          <button id="printCurrentBtn" class="button button-secondary" type="button">Print</button>
+          <button id="downloadCurrentBtn" class="button button-secondary" type="button">Download JPG</button>
+          <button class="button" id="editCurrentBtn" type="button">Edit</button>
+          <button class="button button-secondary" id="deleteCurrentBtn" type="button">Delete</button>
+        </div>
+
+    <div id="toast" class="toast" aria-live="polite"></div>
+
+    <template id="mixRowTemplate">
+      <tr>
+        <td><input class="row-qty" type="number" min="0" step="1" placeholder="1" /></td>
+        <td><input class="row-text" placeholder="24/1 PV 80/20 FAZAL" /></td>
+        <td><button class="icon-button remove-row" type="button" aria-label="Remove row">x</button></td>
+      </tr>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

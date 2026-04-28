@@ -1,0 +1,26 @@
+{
+  "name": "quality-data-manager",
+  "version": "1.0.0",
+  "description": "Textile Quality Data Manager with backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo 'No build step required'",
+    "test": "echo 'No tests yet'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "helmet": "^7.0.0",
+    "express-rate-limit": "^6.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["textile", "quality", "data", "manager"],
+  "author": "BAIRY TEXTILE INDUSTRIES",
+  "license": "ISC"
+}
