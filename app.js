@@ -840,7 +840,7 @@ async function init() {
     searchInput: document.getElementById("searchInput"),
     qualityTableBody: document.getElementById("qualityTableBody"),
     qualityCount: document.getElementById("qualityCount"),
-    clearFormBtn: document.getElementById("clearFormBtn"),
+    newRecordBtn: document.getElementById("newRecordBtn"),
     addWarpRowBtn: document.getElementById("addWarpRowBtn"),
     addWeftRowBtn: document.getElementById("addWeftRowBtn"),
     warpRows: document.getElementById("warpRows"),
@@ -873,6 +873,8 @@ async function init() {
     loginPassword: document.getElementById("loginPassword"),
     signOutBtn: document.getElementById("signOutBtn"),
     userEmail: document.getElementById("userEmail"),
+    signUpBtn: document.getElementById("signUpBtn"),
+    authMessage: document.getElementById("authMessage"),
   };
 
   const createClient = window.supabase?.createClient;
@@ -903,11 +905,12 @@ async function init() {
   };
 
   safeAddListener(els.loginForm, "submit", handleLogin);
+  safeAddListener(els.signUpBtn, "click", handleSignUp);
   safeAddListener(els.signOutBtn, "click", handleSignOut);
   safeAddListener(els.form, "submit", handleFormSubmit);
   safeAddListener(els.searchInput, "input", handleSearch);
   
-  safeAddListener(els.clearFormBtn, "click", () => openEntryModal());
+  safeAddListener(els.newRecordBtn, "click", () => openEntryModal());
   safeAddListener(els.closeEntryModal, "click", closeEntryModal);
   safeAddListener(els.cancelEntryBtn, "click", closeEntryModal);
   safeAddListener(els.closePreviewModal, "click", closePreviewModal);
@@ -1010,6 +1013,7 @@ async function handleLogin(e) {
   const submitBtn = els.loginForm.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.textContent = "Signing In...";
+  if (els.authMessage) els.authMessage.style.display = "none";
 
   try {
     console.log('Calling Supabase signInWithPassword for:', email);
@@ -1027,10 +1031,60 @@ async function handleLogin(e) {
     showToast("Signed in successfully");
   } catch (error) {
     console.error("Login catch error:", error);
-    showToast(error.message || "Invalid email or password", "error");
+    const msg = error.message || "Invalid email or password";
+    showToast(msg, "error");
+    
+    if (els.authMessage && msg.toLowerCase().includes("confirm")) {
+      els.authMessage.textContent = "Please confirm your email before signing in.";
+      els.authMessage.style.display = "block";
+    }
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Sign In";
+  }
+}
+
+async function handleSignUp() {
+  const email = els.loginEmail.value;
+  const password = els.loginPassword.value;
+
+  if (!email || !password) {
+    showToast("Please enter both email and password", "error");
+    return;
+  }
+
+  if (password.length < 6) {
+    showToast("Password must be at least 6 characters", "error");
+    return;
+  }
+
+  els.signUpBtn.disabled = true;
+  els.signUpBtn.textContent = "Signing Up...";
+  if (els.authMessage) els.authMessage.style.display = "none";
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    if (data.user && data.session) {
+      showToast("Account created and signed in!");
+    } else {
+      if (els.authMessage) {
+        els.authMessage.textContent = "Success! Please check your email for a verification link.";
+        els.authMessage.style.display = "block";
+      }
+      showToast("Check your email for verification", "success");
+    }
+  } catch (error) {
+    console.error("Sign up error:", error);
+    showToast(error.message || "Error creating account", "error");
+  } finally {
+    els.signUpBtn.disabled = false;
+    els.signUpBtn.textContent = "Sign Up";
   }
 }
 

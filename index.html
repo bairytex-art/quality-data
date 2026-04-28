@@ -271,10 +271,12 @@
               <input type="password" id="loginPassword" class="input" placeholder="Enter your password" required />
             </div>
           </div>
-          <div class="modal-footer">
-            <button type="submit" class="button button-primary" style="width: 100%;">Sign In</button>
-          </div>
-        </form>
+          <div class="modal-footer" style="display: flex; gap: 10px;">
+          <button type="submit" id="signInBtn" class="button button-primary" style="flex: 1;">Sign In</button>
+          <button type="button" id="signUpBtn" class="button button-secondary" style="flex: 1;">Sign Up</button>
+        </div>
+        <p id="authMessage" style="text-align: center; margin-top: 10px; font-size: 13px; color: var(--muted); display: none;"></p>
+      </form>
       </div>
     </div>
 
