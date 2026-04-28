@@ -404,7 +404,7 @@ h3 {
   position: fixed;
   right: 20px;
   top: 20px;
-  z-index: 20;
+  z-index: 1000;
   min-width: 220px;
   max-width: 360px;
   padding: 12px 14px;
