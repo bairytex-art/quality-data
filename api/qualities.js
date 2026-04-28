@@ -1,26 +1,5 @@
 require('dotenv').config();
-const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(helmet());
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use('/api/', limiter);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quality-data', {
@@ -59,8 +38,46 @@ const qualitySchema = new mongoose.Schema({
 
 const Quality = mongoose.model('Quality', qualitySchema);
 
-// Routes
-app.get('/api/qualities', async (req, res) => {
+// Vercel serverless function handler
+module.exports = async (req, res) => {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    const { url, method } = req;
+    
+    // Parse URL to get path
+    const path = url.split('?')[0];
+    
+    // Handle different routes
+    if (path === '/api/qualities' && method === 'GET') {
+      await handleGetQualities(req, res);
+    } else if (path.match(/^\/api\/qualities\/[^\/]+$/) && method === 'GET') {
+      await handleGetQuality(req, res);
+    } else if (path === '/api/qualities' && method === 'POST') {
+      await handleCreateQuality(req, res);
+    } else if (path.match(/^\/api\/qualities\/[^\/]+$/) && method === 'PUT') {
+      await handleUpdateQuality(req, res);
+    } else if (path.match(/^\/api\/qualities\/[^\/]+$/) && method === 'DELETE') {
+      await handleDeleteQuality(req, res);
+    } else if (path === '/api/health' && method === 'GET') {
+      res.json({ status: 'OK', timestamp: new Date().toISOString() });
+    } else {
+      res.status(404).json({ message: 'Route not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+async function handleGetQualities(req, res) {
   try {
     const { search, filter, page = 1, limit = 50 } = req.query;
     let query = {};
@@ -105,19 +122,20 @@ app.get('/api/qualities', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+}
 
-app.get('/api/qualities/:id', async (req, res) => {
+async function handleGetQuality(req, res) {
   try {
-    const quality = await Quality.findById(req.params.id);
+    const id = req.url.split('/')[3];
+    const quality = await Quality.findById(id);
     if (!quality) return res.status(404).json({ message: 'Quality not found' });
     res.json(quality);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
+}
 
-app.post('/api/qualities', async (req, res) => {
+async function handleCreateQuality(req, res) {
   try {
     const quality = new Quality(req.body);
     const savedQuality = await quality.save();
@@ -125,32 +143,26 @@ app.post('/api/qualities', async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-});
+}
 
-app.put('/api/qualities/:id', async (req, res) => {
+async function handleUpdateQuality(req, res) {
   try {
-    const quality = await Quality.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const id = req.url.split('/')[3];
+    const quality = await Quality.findByIdAndUpdate(id, req.body, { new: true });
     if (!quality) return res.status(404).json({ message: 'Quality not found' });
     res.json(quality);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
-});
+}
 
-app.delete('/api/qualities/:id', async (req, res) => {
+async function handleDeleteQuality(req, res) {
   try {
-    const quality = await Quality.findByIdAndDelete(req.params.id);
+    const id = req.url.split('/')[3];
+    const quality = await Quality.findByIdAndDelete(id);
     if (!quality) return res.status(404).json({ message: 'Quality not found' });
     res.json({ message: 'Quality deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-});
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-// Export for Vercel
-module.exports = app;
+}
