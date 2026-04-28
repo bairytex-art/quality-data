@@ -1,47 +1,9 @@
 // Supabase Configuration
 // Replace with your actual Supabase URL and Key in your environment
 // For local development, these will be injected or replaced
+// Global state
 let supabaseClient = null;
-
-const els = {
-  form: document.getElementById("qualityForm"),
-  searchInput: document.getElementById("searchInput"),
-  qualityTableBody: document.getElementById("qualityTableBody"),
-  qualityCount: document.getElementById("qualityCount"),
-  clearFormBtn: document.getElementById("clearFormBtn"),
-  addWarpRowBtn: document.getElementById("addWarpRowBtn"),
-  addWeftRowBtn: document.getElementById("addWeftRowBtn"),
-  warpRows: document.getElementById("warpRows"),
-  weftRows: document.getElementById("weftRows"),
-  sheetPreview: document.getElementById("sheetPreview"),
-  qualityId: document.getElementById("qualityId"),
-  mixRowTemplate: document.getElementById("mixRowTemplate"),
-  toast: document.getElementById("toast"),
-  printCurrentBtn: document.getElementById("printCurrentBtn"),
-  downloadCurrentBtn: document.getElementById("downloadCurrentBtn"),
-  entryModal: document.getElementById("entryModal"),
-  closeEntryModal: document.getElementById("closeEntryModal"),
-  cancelEntryBtn: document.getElementById("cancelEntryBtn"),
-  previewModal: document.getElementById("previewModal"),
-  closePreviewModal: document.getElementById("closePreviewModal"),
-  editCurrentBtn: document.getElementById("editCurrentBtn"),
-  deleteCurrentBtn: document.getElementById("deleteCurrentBtn"),
-  previewTitle: document.getElementById("previewTitle"),
-  filterBtns: document.querySelectorAll(".filter-btn"),
-  confirmModal: document.getElementById("confirmModal"),
-  confirmTitle: document.getElementById("confirmTitle"),
-  confirmMessage: document.getElementById("confirmMessage"),
-  confirmOkBtn: document.getElementById("confirmOkBtn"),
-  confirmCancelBtn: document.getElementById("confirmCancelBtn"),
-  closeConfirmModal: document.getElementById("closeConfirmModal"),
-  // Auth Elements
-  loginModal: document.getElementById("loginModal"),
-  loginForm: document.getElementById("loginForm"),
-  loginEmail: document.getElementById("loginEmail"),
-  loginPassword: document.getElementById("loginPassword"),
-  signOutBtn: document.getElementById("signOutBtn"),
-  userEmail: document.getElementById("userEmail"),
-};
+let els = {}; // Will be populated in init
 
 const fieldIds = [
   "loomNumber",
@@ -846,7 +808,7 @@ function downloadRecordAsJpg(record) {
   }
 }
 
-els.form.addEventListener("submit", async (event) => {
+async function handleFormSubmit(event) {
   event.preventDefault();
   const payload = getCurrentFormRecord();
 
@@ -863,77 +825,56 @@ els.form.addEventListener("submit", async (event) => {
   } catch (error) {
     showToast("Failed to save record", "error");
   }
-});
+}
 
-els.searchInput.addEventListener("input", async () => {
+async function handleSearch() {
   await renderSavedTable();
-});
-
-els.clearFormBtn.addEventListener("click", () => {
-  openEntryModal();
-  showToast("Ready for new entry");
-});
-
-els.closeEntryModal.addEventListener("click", closeEntryModal);
-els.cancelEntryBtn.addEventListener("click", closeEntryModal);
-els.closePreviewModal.addEventListener("click", closePreviewModal);
-
-els.printCurrentBtn.addEventListener("click", () => {
-  const record = previewRecord || getSelectedRecord();
-  if (record) printRecord(record);
-});
-
-els.downloadCurrentBtn.addEventListener("click", () => {
-  const record = previewRecord || getSelectedRecord();
-  if (record) downloadRecordAsJpg(record);
-});
-
-els.editCurrentBtn.addEventListener("click", () => {
-  if (previewRecord) {
-    closePreviewModal();
-    openEntryModal(previewRecord);
-  }
-});
-
-els.deleteCurrentBtn.addEventListener("click", () => {
-  if (previewRecord && previewRecord.id) {
-    openConfirmModal({
-      title: "Delete Quality",
-      message: `Are you sure you want to delete "${previewRecord.qualityName}"? This action cannot be undone.`,
-      onConfirm: async () => {
-        try {
-          await deleteRecord(previewRecord.id);
-          closePreviewModal();
-          await renderSavedTable();
-          showToast(`${previewRecord.qualityName} deleted`);
-          previewRecord = null;
-        } catch (error) {
-          showToast("Failed to delete record", "error");
-        }
-      }
-    });
-  }
-});
-
-els.filterBtns.forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    els.filterBtns.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentFilter = btn.dataset.filter;
-    await renderSavedTable();
-  });
-});
-
-els.entryModal.querySelector(".modal-backdrop").addEventListener("click", closeEntryModal);
-els.previewModal.querySelector(".modal-backdrop").addEventListener("click", closePreviewModal);
-
-els.addWarpRowBtn.addEventListener("click", () => addMixRow(els.warpRows));
-els.addWeftRowBtn.addEventListener("click", () => addMixRow(els.weftRows));
-
-clearMixRows(els.warpRows);
-clearMixRows(els.weftRows);
+}
 
 async function init() {
+  console.log('Initializing app...');
+  
+  // Initialize elements
+  els = {
+    form: document.getElementById("qualityForm"),
+    searchInput: document.getElementById("searchInput"),
+    qualityTableBody: document.getElementById("qualityTableBody"),
+    qualityCount: document.getElementById("qualityCount"),
+    clearFormBtn: document.getElementById("clearFormBtn"),
+    addWarpRowBtn: document.getElementById("addWarpRowBtn"),
+    addWeftRowBtn: document.getElementById("addWeftRowBtn"),
+    warpRows: document.getElementById("warpRows"),
+    weftRows: document.getElementById("weftRows"),
+    sheetPreview: document.getElementById("sheetPreview"),
+    qualityId: document.getElementById("qualityId"),
+    mixRowTemplate: document.getElementById("mixRowTemplate"),
+    toast: document.getElementById("toast"),
+    printCurrentBtn: document.getElementById("printCurrentBtn"),
+    downloadCurrentBtn: document.getElementById("downloadCurrentBtn"),
+    entryModal: document.getElementById("entryModal"),
+    closeEntryModal: document.getElementById("closeEntryModal"),
+    cancelEntryBtn: document.getElementById("cancelEntryBtn"),
+    previewModal: document.getElementById("previewModal"),
+    closePreviewModal: document.getElementById("closePreviewModal"),
+    editCurrentBtn: document.getElementById("editCurrentBtn"),
+    deleteCurrentBtn: document.getElementById("deleteCurrentBtn"),
+    previewTitle: document.getElementById("previewTitle"),
+    filterBtns: document.querySelectorAll(".filter-btn"),
+    confirmModal: document.getElementById("confirmModal"),
+    confirmTitle: document.getElementById("confirmTitle"),
+    confirmMessage: document.getElementById("confirmMessage"),
+    confirmOkBtn: document.getElementById("confirmOkBtn"),
+    confirmCancelBtn: document.getElementById("confirmCancelBtn"),
+    closeConfirmModal: document.getElementById("closeConfirmModal"),
+    // Auth Elements
+    loginModal: document.getElementById("loginModal"),
+    loginForm: document.getElementById("loginForm"),
+    loginEmail: document.getElementById("loginEmail"),
+    loginPassword: document.getElementById("loginPassword"),
+    signOutBtn: document.getElementById("signOutBtn"),
+    userEmail: document.getElementById("userEmail"),
+  };
+
   const createClient = window.supabase?.createClient;
   if (typeof createClient === 'undefined') {
     console.error('Supabase library not loaded');
@@ -952,6 +893,70 @@ async function init() {
 
   supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   
+  // Attach Event Listeners
+  if (els.loginForm) els.loginForm.addEventListener("submit", handleLogin);
+  if (els.signOutBtn) els.signOutBtn.addEventListener("click", handleSignOut);
+  if (els.form) els.form.addEventListener("submit", handleFormSubmit);
+  if (els.searchInput) els.searchInput.addEventListener("input", handleSearch);
+  if (els.clearFormBtn) els.clearFormBtn.addEventListener("click", () => openEntryModal());
+  if (els.closeEntryModal) els.closeEntryModal.addEventListener("click", closeEntryModal);
+  if (els.cancelEntryBtn) els.cancelEntryBtn.addEventListener("click", closeEntryModal);
+  if (els.closePreviewModal) els.closePreviewModal.addEventListener("click", closePreviewModal);
+  if (els.editCurrentBtn) els.editCurrentBtn.addEventListener("click", () => {
+    if (previewRecord) {
+      closePreviewModal();
+      openEntryModal(previewRecord);
+    }
+  });
+  if (els.printCurrentBtn) els.printCurrentBtn.addEventListener("click", () => {
+    if (previewRecord) printRecord(previewRecord);
+  });
+  if (els.downloadCurrentBtn) els.downloadCurrentBtn.addEventListener("click", () => {
+    if (previewRecord) downloadRecordAsJpg(previewRecord);
+  });
+  
+  if (els.deleteCurrentBtn) {
+    els.deleteCurrentBtn.addEventListener("click", () => {
+      if (previewRecord && previewRecord.id) {
+        openConfirmModal({
+          title: "Delete Quality",
+          message: `Are you sure you want to delete "${previewRecord.qualityName}"? This action cannot be undone.`,
+          onConfirm: async () => {
+            try {
+              await deleteRecord(previewRecord.id);
+              closePreviewModal();
+              await renderSavedTable();
+              showToast(`${previewRecord.qualityName} deleted`);
+              previewRecord = null;
+            } catch (error) {
+              showToast("Failed to delete record", "error");
+            }
+          }
+        });
+      }
+    });
+  }
+
+  if (els.filterBtns) {
+    els.filterBtns.forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        els.filterBtns.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        await renderSavedTable();
+      });
+    });
+  }
+
+  if (els.entryModal) els.entryModal.querySelector(".modal-backdrop").addEventListener("click", closeEntryModal);
+  if (els.previewModal) els.previewModal.querySelector(".modal-backdrop").addEventListener("click", closePreviewModal);
+
+  if (els.addWarpRowBtn) els.addWarpRowBtn.addEventListener("click", () => addMixRow(els.warpRows));
+  if (els.addWeftRowBtn) els.addWeftRowBtn.addEventListener("click", () => addMixRow(els.weftRows));
+
+  clearMixRows(els.warpRows);
+  clearMixRows(els.weftRows);
+
   // Check current session
   const { data: { session } } = await supabaseClient.auth.getSession();
   updateAuthState(session);
@@ -980,23 +985,35 @@ function updateAuthState(session) {
 
 async function handleLogin(e) {
   e.preventDefault();
+  console.log('Login attempt started...');
   const email = els.loginEmail.value;
   const password = els.loginPassword.value;
   
+  if (!email || !password) {
+    showToast("Please enter both email and password", "error");
+    return;
+  }
+
   const submitBtn = els.loginForm.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.textContent = "Signing In...";
 
   try {
-    const { error } = await supabaseClient.auth.signInWithPassword({
+    console.log('Calling Supabase signInWithPassword for:', email);
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase login error:", error);
+      throw error;
+    }
+    
+    console.log('Login successful:', data.user.email);
     showToast("Signed in successfully");
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Login catch error:", error);
     showToast(error.message || "Invalid email or password", "error");
   } finally {
     submitBtn.disabled = false;
@@ -1017,5 +1034,3 @@ async function handleSignOut() {
 
 // Event Listeners
 document.addEventListener("DOMContentLoaded", init);
-els.loginForm.addEventListener("submit", handleLogin);
-els.signOutBtn.addEventListener("click", handleSignOut);
