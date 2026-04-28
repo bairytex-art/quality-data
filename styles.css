@@ -571,11 +571,14 @@ h3 {
 .modal-backdrop {
   position: absolute;
   inset: 0;
+  z-index: 101;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
 }
 
 .modal-content {
+  position: relative;
+  z-index: 102;
   background: #fff;
   border-radius: var(--radius-lg);
   overflow: hidden;
