@@ -483,6 +483,16 @@ h3 {
   color: var(--muted);
 }
 
+#loginForm .modal-footer {
+  padding-top: 0;
+}
+
+#loginForm .button-primary {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 .topbar-right {
   display: flex;
   align-items: center;
