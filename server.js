@@ -14,18 +14,24 @@ app.use(express.static(__dirname));
 
 // Root route - serve the main HTML file with injected config
 app.get('/', (req, res) => {
-  let content = require('fs').readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-  
-  // Inject environment variables into the HTML for the frontend to use
-  const config = {
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY
-  };
-  
-  const configScript = `<script>window.CONFIG = ${JSON.stringify(config)};</script>`;
-  content = content.replace('</head>', `${configScript}</head>`);
-  
-  res.send(content);
+  const filePath = path.join(process.cwd(), 'index.html');
+  try {
+    let content = require('fs').readFileSync(filePath, 'utf8');
+    
+    // Inject environment variables into the HTML for the frontend to use
+    const config = {
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY
+    };
+    
+    const configScript = `<script>window.CONFIG = ${JSON.stringify(config)};</script>`;
+    content = content.replace('</head>', `${configScript}</head>`);
+    
+    res.send(content);
+  } catch (err) {
+    console.error('Error reading index.html:', err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 // Catch-all handler for client-side routing
