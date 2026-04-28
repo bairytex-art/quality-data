@@ -873,12 +873,7 @@ async function init() {
     loginPassword: document.getElementById("loginPassword"),
     signOutBtn: document.getElementById("signOutBtn"),
     userEmail: document.getElementById("userEmail"),
-    signUpBtn: document.getElementById("signUpBtn"),
     authMessage: document.getElementById("authMessage"),
-    authSuccessModal: document.getElementById("authSuccessModal"),
-    authSuccessTitle: document.getElementById("authSuccessTitle"),
-    authSuccessMessage: document.getElementById("authSuccessMessage"),
-    closeAuthSuccessBtn: document.getElementById("closeAuthSuccessBtn"),
   };
 
   const createClient = window.supabase?.createClient;
@@ -909,11 +904,7 @@ async function init() {
   };
 
   safeAddListener(els.loginForm, "submit", handleLogin);
-  safeAddListener(els.signUpBtn, "click", handleSignUp);
   safeAddListener(els.signOutBtn, "click", handleSignOut);
-  safeAddListener(els.closeAuthSuccessBtn, "click", () => {
-    els.authSuccessModal.classList.remove("active");
-  });
 
   safeAddListener(els.form, "submit", handleFormSubmit);
   safeAddListener(els.searchInput, "input", handleSearch);
@@ -988,23 +979,9 @@ async function init() {
   // Listen for auth changes
   supabaseClient.auth.onAuthStateChange((_event, session) => {
     updateAuthState(session);
-    if (_event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-      // User just confirmed email
-      showAuthSuccess("Email Confirmed!", "Your email has been successfully confirmed. You are now signed in!");
-      // Clean up the URL
-      window.history.replaceState(null, null, window.location.pathname);
-    }
   });
 
   await renderSavedTable();
-}
-
-function showAuthSuccess(title, message) {
-  if (els.authSuccessModal) {
-    els.authSuccessTitle.textContent = title;
-    els.authSuccessMessage.textContent = message;
-    els.authSuccessModal.classList.add("active");
-  }
 }
 
 function updateAuthState(session) {
@@ -1062,47 +1039,6 @@ async function handleLogin(e) {
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = "Sign In";
-  }
-}
-
-async function handleSignUp() {
-  const email = els.loginEmail.value;
-  const password = els.loginPassword.value;
-
-  if (!email || !password) {
-    showToast("Please enter both email and password", "error");
-    return;
-  }
-
-  if (password.length < 6) {
-    showToast("Password must be at least 6 characters", "error");
-    return;
-  }
-
-  els.signUpBtn.disabled = true;
-  els.signUpBtn.textContent = "Signing Up...";
-  if (els.authMessage) els.authMessage.style.display = "none";
-
-  try {
-    const { data, error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) throw error;
-
-    if (data.user && data.session) {
-      showToast("Account created and signed in!");
-    } else {
-      showAuthSuccess("Check Your Email", "We've sent a confirmation link to " + email + ". Please click the link to activate your account.");
-      showToast("Check your email for verification", "success");
-    }
-  } catch (error) {
-    console.error("Sign up error:", error);
-    showToast(error.message || "Error creating account", "error");
-  } finally {
-    els.signUpBtn.disabled = false;
-    els.signUpBtn.textContent = "Sign Up";
   }
 }
 

@@ -271,33 +271,15 @@
               <input type="password" id="loginPassword" class="input" placeholder="Enter your password" required />
             </div>
           </div>
-          <div class="modal-footer" style="display: flex; gap: 10px;">
-          <button type="submit" id="signInBtn" class="button button-primary" style="flex: 1;">Sign In</button>
-          <button type="button" id="signUpBtn" class="button button-secondary" style="flex: 1;">Sign Up</button>
+          <div class="modal-footer">
+              <button type="submit" id="signInBtn" class="button button-primary" style="width: 100%;">Sign In</button>
+            </div>
+            <p id="authMessage" style="text-align: center; margin-top: 10px; font-size: 13px; color: var(--muted); display: none;"></p>
+            </form>
+          </div>
         </div>
-        <p id="authMessage" style="text-align: center; margin-top: 10px; font-size: 13px; color: var(--muted); display: none;"></p>
-      </form>
-      </div>
-    </div>
 
     <div id="toast" class="toast" aria-live="polite"></div>
-
-    <!-- Auth Success Modal -->
-    <div id="authSuccessModal" class="modal">
-      <div class="modal-backdrop"></div>
-      <div class="modal-content modal-confirm">
-        <div class="modal-header">
-          <h2 id="authSuccessTitle">Check Your Email</h2>
-        </div>
-        <div class="modal-body" style="text-align: center; padding: 24px;">
-          <div style="font-size: 48px; margin-bottom: 16px;">📧</div>
-          <p id="authSuccessMessage">We've sent a confirmation link to your email. Please click the link to activate your account.</p>
-        </div>
-        <div class="modal-footer">
-          <button id="closeAuthSuccessBtn" class="button button-primary" style="width: 100%;">Got it!</button>
-        </div>
-      </div>
-    </div>
 
     <template id="mixRowTemplate">
       <tr>
