@@ -210,21 +210,37 @@ function closePreviewModal() {
 }
 
 function openConfirmModal({ title, message, onConfirm }) {
+  console.log('Opening confirm modal:', { title, message });
   els.confirmTitle.textContent = title || "Confirm Action";
   els.confirmMessage.textContent = message || "Are you sure?";
   els.confirmModal.classList.add("active");
   document.body.style.overflow = "hidden";
 
-  const handleConfirm = async () => {
-    await onConfirm();
+  // Use a named function to ensure we can clean up if needed
+  const handleConfirm = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Confirm OK clicked');
+    try {
+      els.confirmOkBtn.disabled = true;
+      els.confirmOkBtn.textContent = "Deleting...";
+      await onConfirm();
+    } finally {
+      els.confirmOkBtn.disabled = false;
+      els.confirmOkBtn.textContent = "Yes, Delete";
+      closeConfirmModal();
+    }
+  };
+
+  const handleCancel = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     closeConfirmModal();
   };
 
-  const handleCancel = () => {
-    closeConfirmModal();
-  };
-
-  // One-time listeners
+  // Assign fresh handlers each time modal opens
   els.confirmOkBtn.onclick = handleConfirm;
   els.confirmCancelBtn.onclick = handleCancel;
   els.closeConfirmModal.onclick = handleCancel;
