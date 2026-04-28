@@ -111,6 +111,51 @@
                   <label for="motherName">Mother Name</label>
                   <input id="motherName" placeholder="Enter mother name" required />
                 </div>
+              </div>
+
+              <div class="mix-grid">
+                <section class="mix-card">
+                  <div class="mix-header">
+                    <div>
+                      <p class="section-label">Warp Rows</p>
+                      <p class="hint">Enter quantity and yarn text exactly the way you want it printed.</p>
+                    </div>
+                    <button id="addWarpRowBtn" class="button button-secondary" type="button">Add Warp Row</button>
+                  </div>
+                  <table class="mix-table">
+                    <thead>
+                      <tr>
+                        <th>Qty</th>
+                        <th>Warp yarn description</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="warpRows"></tbody>
+                  </table>
+                </section>
+
+                <section class="mix-card">
+                  <div class="mix-header">
+                    <div>
+                      <p class="section-label">Weft Rows</p>
+                      <p class="hint">Single ya multiple rows dono same flow se handle hongi.</p>
+                    </div>
+                    <button id="addWeftRowBtn" class="button button-secondary" type="button">Add Weft Row</button>
+                  </div>
+                  <table class="mix-table">
+                    <thead>
+                      <tr>
+                        <th>Qty</th>
+                        <th>Weft yarn description</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="weftRows"></tbody>
+                  </table>
+                </section>
+              </div>
+
+              <div class="form-grid" style="margin-top: 24px;">
                 <div class="form-group">
                   <label for="design">Design</label>
                   <input id="design" placeholder="Design details" />
@@ -163,48 +208,6 @@
                     <option value="DIFFERENT">Separate Columns</option>
                   </select>
                 </div>
-              </div>
-
-              <div class="mix-grid">
-                <section class="mix-card">
-                  <div class="mix-header">
-                    <div>
-                      <p class="section-label">Warp Rows</p>
-                      <p class="hint">Enter quantity and yarn text exactly the way you want it printed.</p>
-                    </div>
-                    <button id="addWarpRowBtn" class="button button-secondary" type="button">Add Warp Row</button>
-                  </div>
-                  <table class="mix-table">
-                    <thead>
-                      <tr>
-                        <th>Qty</th>
-                        <th>Warp yarn description</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody id="warpRows"></tbody>
-                  </table>
-                </section>
-
-                <section class="mix-card">
-                  <div class="mix-header">
-                    <div>
-                      <p class="section-label">Weft Rows</p>
-                      <p class="hint">Single ya multiple rows dono same flow se handle hongi.</p>
-                    </div>
-                    <button id="addWeftRowBtn" class="button button-secondary" type="button">Add Weft Row</button>
-                  </div>
-                  <table class="mix-table">
-                    <thead>
-                      <tr>
-                        <th>Qty</th>
-                        <th>Weft yarn description</th>
-                        <th></th>
-                      </tr>
-                    </thead>
-                    <tbody id="weftRows"></tbody>
-                  </table>
-                </section>
               </div>
 
               <div class="form-actions">
