@@ -25,11 +25,13 @@ CREATE TABLE IF NOT EXISTS qualities (
 -- Enable Row Level Security (RLS)
 ALTER TABLE qualities ENABLE ROW LEVEL SECURITY;
 
--- Create a policy that allows anyone to read/write for now
-CREATE POLICY "Allow public access" ON qualities
-    FOR ALL
-    USING (true)
-    WITH CHECK (true);
+-- Allow everyone to read
+CREATE POLICY "Allow public read" ON qualities FOR SELECT USING (true);
+
+-- Only authenticated users can insert, update, or delete
+CREATE POLICY "Allow authenticated insert" ON qualities FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+CREATE POLICY "Allow authenticated update" ON qualities FOR UPDATE USING (auth.role() = 'authenticated');
+CREATE POLICY "Allow authenticated delete" ON qualities FOR DELETE USING (auth.role() = 'authenticated');
 
 -- Function to update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()

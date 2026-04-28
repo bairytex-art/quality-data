@@ -17,13 +17,19 @@
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <div>
-          <p class="kicker">Textile Quality Data</p>
-          <h1>BAIRY TEXTILE INDUSTRIES</h1>
-          <p class="subcopy">Manage quality records with searchable database and export options.</p>
+        <div class="topbar-left">
+          <div class="logo">
+            <span class="logo-icon">🧵</span>
+            <h1>Textile Quality</h1>
+          </div>
         </div>
-        <div class="header-actions">
-          <button id="clearFormBtn" class="button" type="button">+ New Entry</button>
+        <div class="topbar-right">
+          <span id="userEmail" class="user-email"></span>
+          <button id="signOutBtn" class="button button-secondary button-small" style="display: none;">Sign Out</button>
+          <button class="button button-primary" id="newRecordBtn">
+            <span class="icon">+</span>
+            New Quality
+          </button>
         </div>
       </header>
 
@@ -243,6 +249,32 @@
           <button id="confirmCancelBtn" class="button button-secondary" type="button">No, Cancel</button>
           <button id="confirmOkBtn" class="button button-danger" type="button">Yes, Delete</button>
         </div>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal active">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content modal-confirm">
+        <div class="modal-header">
+          <h2>Staff Login</h2>
+        </div>
+        <form id="loginForm">
+          <div class="modal-body">
+            <p style="margin-bottom: 16px; color: var(--muted);">Please sign in to manage quality data.</p>
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label for="loginEmail">Email Address</label>
+              <input type="email" id="loginEmail" class="input" placeholder="Enter your email" required />
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" class="input" placeholder="Enter your password" required />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="button button-primary" style="width: 100%;">Sign In</button>
+          </div>
+        </form>
       </div>
     </div>
 

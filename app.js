@@ -1,10 +1,7 @@
 // Supabase Configuration
 // Replace with your actual Supabase URL and Key in your environment
 // For local development, these will be injected or replaced
-const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://lwvrpuyzbypjydghwvlw.supabase.co';
-const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3dnJwdXl6YnlwanlkZ2h3dmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDE2NjIsImV4cCI6MjA5Mjk3NzY2Mn0.gKptKtqEmiJ3ITz2B5YrqxU4Ppi3VytCAcJ_D0myTbA';
-
-const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let supabaseClient = null;
 
 const els = {
   form: document.getElementById("qualityForm"),
@@ -37,6 +34,13 @@ const els = {
   confirmOkBtn: document.getElementById("confirmOkBtn"),
   confirmCancelBtn: document.getElementById("confirmCancelBtn"),
   closeConfirmModal: document.getElementById("closeConfirmModal"),
+  // Auth Elements
+  loginModal: document.getElementById("loginModal"),
+  loginForm: document.getElementById("loginForm"),
+  loginEmail: document.getElementById("loginEmail"),
+  loginPassword: document.getElementById("loginPassword"),
+  signOutBtn: document.getElementById("signOutBtn"),
+  userEmail: document.getElementById("userEmail"),
 };
 
 const fieldIds = [
@@ -929,7 +933,89 @@ els.addWeftRowBtn.addEventListener("click", () => addMixRow(els.weftRows));
 clearMixRows(els.warpRows);
 clearMixRows(els.weftRows);
 
-// Initialize the app
-(async () => {
+async function init() {
+  const createClient = window.supabase?.createClient;
+  if (typeof createClient === 'undefined') {
+    console.error('Supabase library not loaded');
+    showToast('Failed to load database library', 'error');
+    return;
+  }
+
+  const SUPABASE_URL = window.CONFIG?.SUPABASE_URL || 'https://lwvrpuyzbypjydghwvlw.supabase.co';
+  const SUPABASE_ANON_KEY = window.CONFIG?.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3dnJwdXl6YnlwanlkZ2h3dmx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MDE2NjIsImV4cCI6MjA5Mjk3NzY2Mn0.gKptKtqEmiJ3ITz2B5YrqxU4Ppi3VytCAcJ_D0myTbA';
+
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.error('Missing Supabase configuration');
+    showToast('Database configuration missing', 'error');
+    return;
+  }
+
+  supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  // Check current session
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  updateAuthState(session);
+
+  // Listen for auth changes
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    updateAuthState(session);
+  });
+
   await renderSavedTable();
-})();
+}
+
+function updateAuthState(session) {
+  if (session) {
+    els.loginModal.classList.remove("active");
+    els.signOutBtn.style.display = "block";
+    els.userEmail.textContent = session.user.email;
+    document.body.style.overflow = "auto";
+  } else {
+    els.loginModal.classList.add("active");
+    els.signOutBtn.style.display = "none";
+    els.userEmail.textContent = "";
+    document.body.style.overflow = "hidden";
+  }
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = els.loginEmail.value;
+  const password = els.loginPassword.value;
+  
+  const submitBtn = els.loginForm.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Signing In...";
+
+  try {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+    showToast("Signed in successfully");
+  } catch (error) {
+    console.error("Login error:", error);
+    showToast(error.message || "Invalid email or password", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Sign In";
+  }
+}
+
+async function handleSignOut() {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) throw error;
+    showToast("Signed out successfully");
+  } catch (error) {
+    console.error("Sign out error:", error);
+    showToast("Error signing out", "error");
+  }
+}
+
+// Event Listeners
+document.addEventListener("DOMContentLoaded", init);
+els.loginForm.addEventListener("submit", handleLogin);
+els.signOutBtn.addEventListener("click", handleSignOut);

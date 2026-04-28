@@ -483,6 +483,23 @@ h3 {
   color: var(--muted);
 }
 
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-email {
+  font-size: 14px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.button-small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
