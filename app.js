@@ -20,7 +20,6 @@ const fieldIds = [
   "qualityWeight",
   "nameYarn",
   "zameenYarn",
-  "layoutMode",
 ];
 
 const fields = Object.fromEntries(fieldIds.map((id) => [id, document.getElementById(id)]));
@@ -437,7 +436,6 @@ function resetForm() {
   clearMixRows(els.warpRows);
   clearMixRows(els.weftRows);
   fields.beamType.value = "SIZING";
-  fields.layoutMode.value = "AUTO";
 }
 
 function fillForm(record) {
@@ -471,7 +469,6 @@ function getCurrentFormRecord() {
     qualityWeight: fields.qualityWeight.value.trim(),
     nameYarn: fields.nameYarn.value.trim().toUpperCase(),
     zameenYarn: fields.zameenYarn.value.trim().toUpperCase(),
-    layoutMode: fields.layoutMode.value,
     warpRows: readRows(els.warpRows),
     weftRows: readRows(els.weftRows),
   };
